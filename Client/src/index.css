@@ -1,0 +1,29 @@
+.my-container {
+    position: absolute;
+    top: 0;
+    right: 0;
+    margin: auto;
+    padding: 0px 40px;
+    width: calc(100% - 200px);
+    transition: margin-left 0.3s ease, width 0.3s ease;
+    height: 100vw;
+  }
+
+  .custom-file-upload {
+    display: inline-block;
+    position: relative;
+  }
+  
+  .file-label {
+    background-color: gray; /* Fondo gris */
+    color: white; /* Color del texto */
+    padding: 10px 20px; /* Espaciado interno */
+    border-radius: 5px; /* Bordes redondeados */
+    cursor: pointer; /* Apunta a que es clickeable */
+    font-size: 16px; /* Tamaño del texto */
+  }
+  
+  #file-upload {
+    display: none; /* Oculta el input real */
+  }
+  

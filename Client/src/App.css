@@ -1,0 +1,22 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer components {
+  .input-personalizado {
+    @apply bg-[#f5f4f4] w-full p-2 pl-3 border rounded-2xl focus:outline-none;
+  }
+
+  /* Estilos personalizados para el placeholder */
+  .input-personalizado::placeholder {
+    @apply font-medium text-[#646464];
+  }
+
+  /* Nueva clase personalizada para la cuadrícula */
+  .tablaGrid {
+    @apply relative grid grid-cols-1 lg:grid-cols-2 2xl:grid-cols-3 3xl:grid-cols-4 gap-5;
+  }
+  .buttonClick{
+    @apply transition-all duration-200 shadow-lg border-gray-500 border p-2 rounded-lg col-span-1 text-black font-semibold flex items-center justify-center gap-2 hover:bg-gray-500 hover:text-white
+  }
+}
