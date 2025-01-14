@@ -1,13 +1,21 @@
 import React, { useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import * as XLSX from 'xlsx';
+import { registerCampaign } from '../../../api/api';
+import { UseActualizar, UseModal } from '../../../store/Modal';
 
 function ModalCampWSP() {
+    const setIsOpen = UseModal((state) => state.setIsOpen)
+    const setModalContent = UseModal((state => state.setModalContent))
+    const setIsActualizar = UseActualizar((state) => state.setIsActualizar)
+
     const [programarActiva, setProgramarActiva] = useState(false);
     const [programarFecha, setProgramarFecha] = useState({ fecha: '', hora: '' });
     const [formatoData, setFormatoData] = useState('');
     const [archivoExcel, setArchivoExcel] = useState(null);
     const [TelefonosNombres, setTelefonosNombres] = useState([]); // Estado para almacenar el JSON del Excel
+    const [selectedType, setSelectedType] = useState('texto'); // Estado para el tipo de campaña
+    const [selectedFileImagenVideo, setSelectedFileImagenVideo] = useState(null); // Estado para el archivo de imagen/video/PDF
 
     // Configuración de React Hook Form
     const { register, handleSubmit, watch, formState: { errors } } = useForm();
@@ -29,6 +37,12 @@ function ModalCampWSP() {
             ...prev,
             hora,
         }));
+    };
+
+    // Manejar cambios en el tipo de campaña
+    const handleTypeChange = (e) => {
+        setSelectedType(e.target.value);
+        setSelectedFileImagenVideo(null); // Limpiar el archivo seleccionado al cambiar el tipo
     };
 
     // Manejar la carga del archivo Excel y convertirlo a JSON
@@ -56,6 +70,14 @@ function ModalCampWSP() {
         reader.readAsArrayBuffer(file);
     };
 
+    // Manejar la carga de archivos de imagen/video/PDF
+    const handleFileChange = (e) => {
+        const file = e.target.files[0];
+        if (file) {
+            setSelectedFileImagenVideo(file); // Guardar el archivo completo, no solo el nombre
+        }
+    };
+
     // Actualizar formatoData cuando fecha y hora estén completos
     useEffect(() => {
         if (programarFecha.fecha && programarFecha.hora) {
@@ -79,21 +101,26 @@ function ModalCampWSP() {
         }
     };
 
-    // Función para manejar el envío del formulario
-    const onSubmit = (data) => {
-        const formData = {
-            Campania: data.Campania,
-            Titulo: data.Titulo || '', // Si no hay título, asignar una cadena vacía
-            Mensaje: data.contenido,
-            Tipo: data.Tipo,
-            Cantidad: TelefonosNombres.length, // Cantidad de registros en el archivo Excel
-            Empresa: "Yego", // Valor fijo
-            Media: "", // Valor fijo
-            TelefonosNombres: TelefonosNombres, // Datos del archivo Excel
-            fecha_pendiente: formatoData || '', // Fecha programada o cadena vacía
-        };
-        console.log('Datos del formulario:', formData);
-        console.log('Excel convertido a JSON:', TelefonosNombres); // Mostrar el JSON del Excel en la consola
+    const onSubmit = async (data) => {
+        try {
+            setIsActualizar(true)
+            const formData = {
+                campania: data.Campania,
+                titulo: data.campaignTitle || '',
+                mensaje: data.contenido,
+                tipo: data.Tipo,
+                cantidad: TelefonosNombres.length,
+                media: selectedFileImagenVideo || "",
+                telefonosNombres: TelefonosNombres,
+                fecha_pendiente: formatoData || '',
+            };
+            await registerCampaign(formData)
+        } catch (error) {
+            alert("Hubo un error al registrar la campaña. Por favor, inténtalo de nuevo.");
+        } finally {
+            setModalContent('');
+            setIsOpen(false)
+        }
     };
 
     // Texto del botón
@@ -105,7 +132,7 @@ function ModalCampWSP() {
 
     return (
         <form onSubmit={handleSubmit(onSubmit)} className='flex flex-col gap-6 text-black'>
-            <div className="flex items-center w-96 text-base justify-between">
+            <div className="flex items-center min-w-96 text-base justify-between">
                 <h2 className="text-2xl font-black text-white">Crear Campaña</h2>
                 <button
                     type="button" // Evita que el botón envíe el formulario
@@ -137,7 +164,7 @@ function ModalCampWSP() {
                     type="text"
                     id="Campania"
                     placeholder='Nombre de la Campaña'
-                    className='p-2.5 rounded-lg outline-none'
+                    className='p-2.5 rounded-lg outline-none text-sm'
                     {...register("Campania", { required: "Este campo es obligatorio" })}
                 />
                 {errors.Campania && (
@@ -150,6 +177,7 @@ function ModalCampWSP() {
                     id="Tipo"
                     className="bg-gray-50 outline-none border border-gray-300 text-sm rounded-lg block w-full p-2.5"
                     {...register("Tipo", { required: "Este campo es obligatorio" })}
+                    onChange={handleTypeChange}
                 >
                     <option value="texto">Texto</option>
                     <option value="imagen">Imagen</option>
@@ -159,7 +187,60 @@ function ModalCampWSP() {
                 {errors.Tipo && (
                     <span className="text-red-500 text-sm">{errors.Tipo.message}</span>
                 )}
+                {(selectedType === "imagen" || selectedType === "video" || selectedType === "pdf") && (
+                    <div className="divfileInputImagenVideo mt-4 flex justify-between max-w-96">
+                        <label
+                            className="fileInputImagenVideo bg-gray-600 text-white py-2 px-4 rounded-lg cursor-pointer text-sm font-semibold"
+                            htmlFor="file-upload-imagen-video"
+                        >
+                            SELECCIONAR {selectedType.toUpperCase()}
+                        </label>
+                        <input
+                            onChange={handleFileChange}
+                            type="file"
+                            id="file-upload-imagen-video"
+                            accept={
+                                selectedType === "imagen"
+                                    ? "image/*"
+                                    : selectedType === "video"
+                                        ? "video/*"
+                                        : "application/pdf"
+                            }
+                            className="hidden"
+                        />
+                        <span className="file-selected text-sm text-gray-500 mt-2">
+                            {selectedFileImagenVideo ? selectedFileImagenVideo.name : "Sin archivos seleccionados"}
+                        </span>
+                    </div>
+                )}
             </div>
+            {(selectedType === "imagen" || selectedType === "video" || selectedType === "pdf") && (
+                <div className="flex flex-col">
+                    <label htmlFor="campaignTitle" className="block font-black mb-2 text-base text-white">
+                        Título de la Campaña
+                        <span className="text-sm text-gray-500">
+                            {` (Para ${selectedType === "imagen"
+                                ? "Imagen"
+                                : selectedType === "video"
+                                    ? "Video"
+                                    : "PDF"
+                                })`}
+                        </span>
+                    </label>
+                    <input
+                        type="text"
+                        id="campaignTitle"
+                        placeholder="Título de la Campaña"
+                        className="p-2.5 rounded-lg outline-none border border-gray-300 text-sm"
+                        {...register("campaignTitle", {
+                            required: selectedType !== "texto" ? "Este campo es obligatorio" : false,
+                        })}
+                    />
+                    {errors.campaignTitle && (
+                        <span className="text-red-500 text-sm">{errors.campaignTitle.message}</span>
+                    )}
+                </div>
+            )}
             <div>
                 <label htmlFor="contenido" className="block mb-2 font-black text-base text-white">Contenido de la Campaña</label>
                 <textarea
@@ -183,20 +264,32 @@ function ModalCampWSP() {
                     <span className="text-red-500 text-sm">{errors.contenido.message}</span>
                 )}
             </div>
-            <span className='font-black text-base text-white'>Adjuntar Archivo Excel</span>
-            <div className='flex justify-between'>
-                <div className="custom-file-upload">
-                    <label htmlFor="file-upload" className="file-label">
-                        Seleccionar Excel
-                    </label>
-                    <input onChange={handleFileUpload} id="file-upload" type="file" accept=".xlsx,.xls" />
+            <div className='flex flex-col gap-3'>
+                <span className='font-black text-base text-white'>Adjuntar Archivo Excel</span>
+                <div className='flex justify-between'>
+                    <div className="custom-file-upload">
+                        <label htmlFor="file-upload" className="file-label bg-gray-600 font-semibold text-white py-2 px-4 rounded-lg cursor-pointer ">
+                            SELECCIONAR EXCEL
+                        </label>
+                        <input onChange={handleFileUpload} id="file-upload" type="file" accept=".xlsx,.xls" className="hidden" />
+                    </div>
+                    <div className="flex flex-col items-end">
+                        <span className=' text-sm text-gray-500'>{archivoExcel ? archivoExcel.name : "archivo excel"}</span>
+                        {archivoExcel && (
+                            <span className="text-sm text-gray-500">
+                                {TelefonosNombres.length} personas
+                            </span>
+                        )}
+                    </div>
                 </div>
-                <span className='text-white font-bold'>archivo excel</span>
             </div>
 
             <div className='flex justify-between items-center mt-5'>
                 <button type="submit" className='p-2 rounded-lg w-24 text-white font-bold bg-green-500'>Enviar</button>
-                <button type="button" className='p-2 rounded-lg w-24 text-white font-bold bg-red-500'>Cancelar</button>
+                <button onClick={() => {
+                    setModalContent('');
+                    setIsOpen(false)
+                }} type="button" className='p-2 rounded-lg w-24 text-white font-bold bg-red-500'>Cancelar</button>
             </div>
         </form>
     );

@@ -8,7 +8,6 @@ function ModalInstancia() {
       const qrBase64 = useInstanciaQR((state) => state.qrBase64);
     return (
         <div>
-            <IoMdClose onClick={() => setIsOpen(false)} className='absolute right-5 top-5 cursor-pointer' size={20} />
             <p className=' font-bold text-center text-lg'>Código QR de Conexión</p>
             {qrBase64 && <img src={qrBase64} alt="Código QR" />}
         </div>

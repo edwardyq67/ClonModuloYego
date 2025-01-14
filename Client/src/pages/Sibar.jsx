@@ -3,6 +3,7 @@ import { BsFillDoorClosedFill } from "react-icons/bs";
 import { AccordionItem } from "../components/AccordionItem";
 import { UsePixelarSiber, UseSibar } from "../store/Sibar";
 import { UseSlider } from "../store/Modal";
+import { useNavigate } from "react-router-dom";
 
 function Sidebar() {
   const setValorModulo = UseSibar((state) => state.setValorModulo);
@@ -11,12 +12,24 @@ function Sidebar() {
   const setIsOpenSlider=UseSlider((state)=>state.setIsOpenSlider)
   const siberNav = UseSibar((state) => state.siberNav);
 
+
   const settings = [
     {
       title: "Clous",
       icon: <BsFillDoorClosedFill size={20} />,
     },
   ];
+const navigate = useNavigate(); 
+  const salir = () => {
+    // Obtener la función de navegación
+  
+    // Eliminar datos del localStorage
+    localStorage.removeItem('token');
+    localStorage.removeItem('Permisos');
+    localStorage.removeItem('PermisosEspeciales');
+
+    navigate('/');
+  };
 
   return (
     <>
@@ -97,7 +110,7 @@ function Sidebar() {
           </div>
         </div>
 
-        <ul className="space-y-2 font-medium border-t-2 border-gray-200 pt-3">
+        <ul onClick={()=>salir()} className="space-y-2 font-medium border-t-2 border-gray-200 pt-3">
           {settings.map((item) => (
             <li key={item.title}>
               <button

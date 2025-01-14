@@ -1,19 +1,19 @@
 import React, { useEffect, useState } from "react";
 import { IoQrCodeSharp } from "react-icons/io5";
 import { FaCircle, FaFileImage } from "react-icons/fa";
-import { generateQrCode, logoutInstance } from "../api/api";
+import { fetchInstances, generateQrCode, logoutInstance } from "../api/api";
 import { IoMdAdd } from "react-icons/io";
 import { useInstanciaQR } from "../store/Comunicaciones";
 import { FaRegTrashCan } from "react-icons/fa6";
-import { UseModal, UseSlider } from "../store/Modal";
+import { UseActualizar, UseModal, UseSlider } from "../store/Modal";
 
 function Instancias() {
   const setQrBase64 = useInstanciaQR((state) => state.setQrBase64);
-  const dataInstancia = useInstanciaQR((state) => state.dataInstancia);
   const setIsOpen = UseModal((state) => state.setIsOpen);
   const setModalContent = UseModal((state) => state.setModalContent);
   const setIsOpenSlider = UseSlider((state) => state.setIsOpenSlider);
-
+const isActualizar=UseActualizar((state)=>state.isActualizar)
+const setIsActualizar=UseActualizar((state)=>state.setIsActualizar)
   // Estado para el término de búsqueda
   const [busqueda, setBusqueda] = useState("");
 
@@ -22,23 +22,23 @@ function Instancias() {
 
   // Estado para las instancias filtradas
   const [instanciasFiltradas, setInstanciasFiltradas] = useState([]);
-
-  // Efecto para filtrar las instancias
+const [dataInstancia,setdataInstancia]=useState([])
   useEffect(() => {
     const filtrarInstancias = () => {
       try {
         const filtradas = dataInstancia.filter((instancia) => {
+          // Verificar si instancia.name existe antes de usarlo
           const coincideNombre = instancia.name
-            .toLowerCase()
-            .includes(busqueda.toLowerCase());
-
+            ? instancia.name.toLowerCase().includes(busqueda.toLowerCase())
+            : false;
+  
+          // Verificar si instancia.ownerJid existe antes de usarlo
           const coincideTelefono = instancia.ownerJid
-            .split("@")[0]
-            .toLowerCase()
-            .includes(busqueda.toLowerCase());
-
+            ? instancia.ownerJid.split("@")[0].toLowerCase().includes(busqueda.toLowerCase())
+            : false;
+  
           const coincideBusqueda = coincideNombre || coincideTelefono;
-
+  
           if (filtroConexion === "Todos") {
             return coincideBusqueda;
           } else if (filtroConexion === "Conectado") {
@@ -46,26 +46,69 @@ function Instancias() {
           } else if (filtroConexion === "Desconectado") {
             return coincideBusqueda && instancia.connectionStatus !== "open";
           }
-
+  
           return false;
         });
-
-        setInstanciasFiltradas(filtradas); // Actualiza las instancias filtradas
+  
+        // Ordenar las instancias filtradas por nombre de manera inversa (Z-A)
+        const filtradasOrdenadas = filtradas.sort((a, b) => {
+          if (a.name > b.name) return -1; // Invertimos el orden
+          if (a.name < b.name) return 1;  // Invertimos el orden
+          return 0;
+        });
+  
+        setInstanciasFiltradas(filtradasOrdenadas); // Actualiza las instancias filtradas y ordenadas
       } catch (error) {
         console.error("Error filtrando instancias:", error);
       } finally {
         setIsOpenSlider(false); // Cierra el slider de carga
       }
     };
-
+  
     filtrarInstancias();
-  }, [busqueda, filtroConexion, dataInstancia, setIsOpenSlider]);
+  }, [busqueda, filtroConexion, dataInstancia]); // Eliminamos setIsOpenSlider de las dependencias
 
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        setIsOpenSlider(true); // Activar el slider
+        const data = await fetchInstances(); // Obtener datos
+        setdataInstancia(data); // Actualizar el estado con los datos
+      } catch (error) {
+        console.error('Error al obtener las instancias:', error);
+      } finally {
+          setIsOpenSlider(false);
+      }
+    };
+  
+    fetchData(); // Llamar a la función para obtener los datos
+  }, []);
+  
+  useEffect(() => {
+    const fetchActualizar = async () => {
+      try {
+        setIsOpenSlider(true);
+        const data = await fetchInstances(); 
+        setdataInstancia(data); 
+      } catch (error) {
+        console.error('Error al actualizar las instancias:', error);
+      } finally {
+        setIsActualizar(false); 
+        setIsOpenSlider(false);
+      }
+    };
+  
+    if (isActualizar) {
+      fetchActualizar(); // Llamar a la función si `isActualizar` es `true`
+    }
+  }, [isActualizar]);
   const envioQR = async (name) => {
     try {
       const qrData = await generateQrCode(name);
       if (qrData.status === 200 && qrData.base64) {
         setQrBase64(qrData.base64);
+      } else {
+        throw new Error("No se pudo generar el QR.");
       }
     } catch (error) {
       console.error("Error generando el QR:", error);
@@ -74,10 +117,8 @@ function Instancias() {
 
   const handleDelete = async (name) => {
     try {
-      const logoutResponse = await logoutInstance(name);
-      if (logoutResponse.status !== "SUCCESS") {
-        throw new Error("Error al cerrar la sesión de la instancia.");
-      }
+      await logoutInstance(name);
+
     } catch (error) {
       console.error("Error eliminando la instancia:", error);
     }
@@ -94,7 +135,13 @@ function Instancias() {
           onChange={(e) => setBusqueda(e.target.value)} // Actualiza el término de búsqueda
           className="border border-gray-300 p-2 rounded-lg w-full col-span-4 outline-none"
         />
-        <button className="border-gray-300 border p-2 rounded-lg col-span-1 text-black font-bold flex items-center justify-center gap-2">
+        <button
+          onClick={() => {
+            setIsOpen(true);
+            setModalContent("Comunicaciones masiva Instancias modal crear Instancia");
+          }}
+          className="border-gray-300 border p-2 rounded-lg col-span-1 text-black font-bold flex items-center justify-center gap-2"
+        >
           <IoMdAdd className="text-black" /> Instancia
         </button>
         <form className="max-w-sm mx-auto col-span-1 w-full outline-none">
@@ -137,13 +184,16 @@ function Instancias() {
                 className="rounded-full"
                 src={instancia.profilePicUrl}
                 alt="Profile"
+                onError={(e) => {
+                  e.target.style.display = "none"; // Oculta la imagen si no se puede cargar
+                }}
               />
             ) : (
               <FaFileImage className="text-gray-400 w-12 h-12" />
             )}
             <div>
               <h3>Yego</h3>
-              {instancia.ownerJid.split("@")[0]}
+              {instancia.ownerJid ? instancia.ownerJid.split("@")[0] : "Sin Numero"}
             </div>
           </div>
           <div className="flex justify-between items-center">
@@ -153,18 +203,18 @@ function Instancias() {
               >
                 <h4
                   className={`${
-                    instancia.connectionStatus == "open"
+                    instancia.connectionStatus === "open"
                       ? "text-green-500"
                       : "text-red-500"
                   }`}
                 >
-                  {instancia.connectionStatus == "open"
+                  {instancia.connectionStatus === "open"
                     ? "Disponible"
                     : "No Disponible"}
                 </h4>
                 <FaCircle
                   className={`${
-                    instancia.connectionStatus == "open"
+                    instancia.connectionStatus === "open"
                       ? "text-green-500"
                       : "text-red-500"
                   } w-2 h-2`}
@@ -172,7 +222,7 @@ function Instancias() {
               </button>
             </div>
             <FaRegTrashCan
-              onClick={() => handleDelete(instancia.name)}
+              onClick={() => {handleDelete(instancia.name),setIsActualizar(true)}}
               className="cursor-pointer"
             />
           </div>

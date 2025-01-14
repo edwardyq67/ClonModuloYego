@@ -12,3 +12,5 @@ export const useInstanciaQR = create((set) => ({
     dataInstancia:[],
     setDataInstancia: (data) => set({ dataInstancia: data }),
   }));
+
+  

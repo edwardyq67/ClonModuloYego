@@ -11,3 +11,8 @@ export const UseSlider = create((set) => ({
     isOpenSlider: false,
     setIsOpenSlider: (value) => set({ isOpenSlider: value }), 
   }));
+
+  export const UseActualizar=create((set) => ({
+    isActualizar: false,
+    setIsActualizar: (value) => set({ isActualizar: value }), 
+  }));

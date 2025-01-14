@@ -25,10 +25,22 @@ export const generateQrCode = async (instanceName) => {
     }
   };
 
+  export const createInstance = async (instanceName) => {
+    try {
+      const response = await axios.post(`${API_URL}/create-instance`, {
+        instanceName,
+      });
+      return response.data;
+    } catch (error) {
+      console.error("Error al crear la instancia:", error);
+      throw error;
+    }
+  };
+
   export const logoutInstance = async (instanceName) => {
     try {
       const response = await axios.delete(
-        `${API_URL}/logout-instance/${instanceName}`
+        `${API_URL}/delete-instance/${instanceName}`
       );
       return response.data;
     } catch (error) {
@@ -63,5 +75,145 @@ export const getCallSummary = async () => {
   } catch (error) {
     console.error("Error fetching WhatsApp summary:", error);
     throw error.response?.data || error;
+  }
+};
+
+// Función para registrar una campaña de WhatsApp usando la API local
+export const registerCampaign = async (formData) => {
+  try {
+      const { campania, titulo, mensaje, tipo, cantidad, telefonosNombres, media, fecha_pendiente } = formData;
+      let imgUrl = ""; // URL de la imagen (inicialmente vacía)
+
+      // Si el tipo es "imagen", "video" o "pdf" y media no está vacío, subir el archivo
+      if ((tipo === "imagen" || tipo === "video" || tipo === "pdf") && media) {
+          const formImg = new FormData();
+          formImg.append("bucket", "masivo");
+          formImg.append("file", media);
+
+          // Subir el archivo al servidor
+          const imgResponse = await axios.post(
+              "https://cloud.3w.pe/media2",
+              formImg,
+              {
+                  headers: {
+                      "Content-Type": "multipart/form-data", // Asegúrate de configurar el encabezado
+                  },
+              }
+          );
+
+          // Obtener la URL del archivo subido
+          imgUrl = imgResponse.data.url;
+      }
+
+      // Crear el cuerpo de la solicitud
+      const requestBody = {
+          Campania: campania,
+          Titulo: titulo,
+          Mensaje: mensaje,
+          Tipo: tipo,
+          Cantidad: cantidad,
+          Empresa: "Yego",
+          TelefonosNombres: telefonosNombres,
+          Media: imgUrl, // Usar la URL del archivo subido
+          fecha_pendiente: fecha_pendiente,
+      };
+
+      // Enviar la solicitud para registrar la campaña
+      const response = await axios.post(
+          `${API_URL}/send-whatsapp/registro`,
+          requestBody,
+          {
+              headers: {
+                  "Content-Type": "application/json",
+              },
+          }
+      );
+
+      return response.data;
+  } catch (error) {
+      console.error(
+          "Error registering campaign:",
+          error.response?.data || error.message
+      );
+      throw error.response?.data || error;
+  }
+};
+
+export const postWspState = async (idcampania, estado) => {
+  try {
+    const response = await axios.post(`${API_URL}/send-whatsapp/estado`, {
+      idcampania: idcampania,
+      estado: estado,
+    });
+    return response.data;
+  } catch (error) {
+    console.error("Error change whatasapp status:", error);
+    throw error.response?.data || error;
+  }
+};
+
+
+export const registerCamapaingCall = async (campaign, numbers, audio_url) => {
+  try {
+    let audioURL = "";
+
+    // Crear un FormData y agregar el archivo de audio
+    const formData = new FormData();
+    formData.append("bucket", "dify");
+    formData.append("file", audio_url);
+
+    // Subir el archivo de audio al servidor
+    const uploadResponse = await axios.post(
+      "https://cloud.3w.pe/media2",
+      formData,
+      {
+        headers: {
+          "Content-Type": "multipart/form-data", // Configurar el encabezado correcto
+        },
+      }
+    );
+
+    // Obtener la URL del archivo subido
+    audioURL = uploadResponse.data.url;
+
+    // Mostrar en consola los datos que se enviarán al servidor
+    console.log("Datos a enviar:", {
+      campaign: campaign.Campania, // Asegúrate de que campaign sea un objeto con la propiedad Campania
+      numbers: numbers,
+      audio_url: audioURL,
+    });
+
+    // Enviar los datos de la campaña, números y URL del audio al servidor
+    const callResponse = await axios.post("http://5.161.42.50:3000/start-call", {
+      campaign: campaign.Campania, // Asegúrate de que campaign sea un objeto con la propiedad Campania
+      numbers: numbers,
+      audio_url: audioURL,
+    });
+
+    // Retornar la respuesta del servidor
+    return callResponse.data;
+
+  } catch (error) {
+    console.error("Error al registrar la campaña:", error);
+    throw error.response?.data || error; // Lanzar el error para que pueda ser manejado externamente
+  }
+};
+
+export const deleteCampaignApi = async (itemId) => {
+  try {
+    const responseDeleteCam = await axios.delete(
+      `http://5.161.42.50:3000/campaigns/deleteCampaign`,
+      {
+        data: { idCampaign: itemId }, // Pasamos 'idCampaign' en el cuerpo de la solicitud
+      }
+    );
+
+    return responseDeleteCam.data;
+  } catch (error) {
+    console.log("Error en eliminar campaña: ", error);
+    return {
+      success: 3,
+      message: "Error al conectar con la API. Intenta de nuevo.",
+    };
   }
 };

@@ -5,6 +5,7 @@ import { UsePixelarSiber } from './store/Sibar';
 import { UseModal, UseSlider } from './store/Modal';
 import ModalInstanciaQR from './comunicaciones/modal/ModalInstanciaQR';
 import Slider from './components/Slider';
+import ProtectedRoutes from './ProtectedRoutes'; // Importa el componente ProtectedRoutes
 
 // Carga dinámica de componentes
 const Login = lazy(() => import('./Login/Login'));
@@ -12,11 +13,9 @@ const Modulo = lazy(() => import('./pages/Modulo'));
 const Sibar = lazy(() => import('./pages/Sibar'));
 
 function App() {
-  const pixelesSiber=UsePixelarSiber(state=>state.pixelesSiber)
-//  modal Activacion
-const isOpen=UseModal((state)=>state.isOpen);
-//modal Slider
-const isOpenSlider=UseSlider((state)=>state.isOpenSlider)
+  const pixelesSiber = UsePixelarSiber((state) => state.pixelesSiber);
+  const isOpen = UseModal((state) => state.isOpen); // Modal de activación
+  const isOpenSlider = UseSlider((state) => state.isOpenSlider); // Modal Slider
   const anchoSibar = pixelesSiber ? '200px' : '10px';
 
   // Estilos en línea para el contenedor principal
@@ -37,23 +36,25 @@ const isOpenSlider=UseSlider((state)=>state.isOpenSlider)
     <HashRouter>
       <Suspense fallback={<div>Cargando...</div>}>
         <Routes>
+          {/* Ruta pública (Login) */}
           <Route path="/" element={<Login />} />
-          <Route
-            path="*"
-            element={
-              <div style={{ display: 'flex' }}>
-                <Sibar/>
-                {/* comunicacion masiva */}
-                {isOpen&& <ModalInstanciaQR/> }
-                {isOpenSlider&&<Slider/>}
-                <div style={styles.container}>
-                  <Routes>
-                    <Route path="/modulo" element={<Modulo/>} />
-                  </Routes>
+
+          {/* Rutas protegidas */}
+          <Route element={<ProtectedRoutes />}>
+            <Route
+              path="/modulo"
+              element={
+                <div style={{ display: 'flex' }}>
+                  <Sibar />
+                  {isOpen && <ModalInstanciaQR />}
+                  {isOpenSlider && <Slider />}
+                  <div style={styles.container}>
+                    <Modulo />
+                  </div>
                 </div>
-              </div>
-            }
-          />
+              }
+            />
+          </Route>
         </Routes>
       </Suspense>
     </HashRouter>
