@@ -9,6 +9,6 @@ export const UseSibar = create((set) => ({
 }));
 export const UsePixelarSiber = create((set) => ({
     pixelesSiber: false,
-    setPixelSiber: () => set((state) => ({ pixelesSiber: !state.pixelesSiber })), // Cambiar `valor` por `pixelesSiber`
+    setPixelSiber: (value) => set({ pixelesSiber: value })// Cambiar `valor` por `pixelesSiber`
   }));
   

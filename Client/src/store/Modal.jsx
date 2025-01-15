@@ -16,3 +16,5 @@ export const UseSlider = create((set) => ({
     isActualizar: false,
     setIsActualizar: (value) => set({ isActualizar: value }), 
   }));
+
+  

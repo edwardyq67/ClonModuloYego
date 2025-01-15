@@ -136,7 +136,7 @@ function ModalCampCallCrear() {
             </div>
 
             {/* Botones de acción */}
-            <div className='flex justify-between items-center mt-5'>
+            <div className='flex justify-between items-center'>
                 <button type="submit" className='p-2 rounded-lg w-24 text-white font-bold bg-green-500 hover:bg-green-600 transition-colors'>
                     Enviar
                 </button>

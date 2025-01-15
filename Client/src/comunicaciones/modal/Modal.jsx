@@ -5,15 +5,15 @@ import ModalCampWSP from './comunicaciones masivas/ModalCampWSP';
 import ModalCrearInstancias from './comunicaciones masivas/ModalCrearInstancias';
 import ModalInstancia from './comunicaciones masivas/ModalInstancia';
 import { MdClose } from "react-icons/md";
-function ModalInstanciaQR() {
+function Modal() {
   // Accede al estado qrBase64 del store
 const modalContent=UseModal((state)=>state.modalContent)
 const setIsOpen=UseModal((state)=>state.setIsOpen)
 const setModalContent=UseModal((state=>state.setModalContent))
   return (
-    <div className='top-0 z-50 fixed w-screen h-screen flex justify-center items-center'>
+    <div className='top-0 z-20 fixed w-screen h-screen flex justify-center items-center'>
       
-      <div className='relative bg-black text-white z-50 gap-5 flex flex-col p-5 pt-10 rounded-xl'>
+      <div className='relative bg-gray-800 text-white z-20 gap-5 flex flex-col p-5 pt-10 rounded-xl'>
         <MdClose onClick={()=>{
           setModalContent('');
           setIsOpen(false)
@@ -29,4 +29,4 @@ const setModalContent=UseModal((state=>state.setModalContent))
   );
 }
 
-export default ModalInstanciaQR;
+export default Modal;

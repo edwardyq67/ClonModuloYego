@@ -1,52 +1,42 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useForm } from 'react-hook-form';
 import * as XLSX from 'xlsx';
 import { registerCampaign } from '../../../api/api';
 import { UseActualizar, UseModal } from '../../../store/Modal';
 
 function ModalCampWSP() {
-    const setIsOpen = UseModal((state) => state.setIsOpen)
-    const setModalContent = UseModal((state => state.setModalContent))
-    const setIsActualizar = UseActualizar((state) => state.setIsActualizar)
+    const setIsOpen = UseModal((state) => state.setIsOpen);
+    const setModalContent = UseModal((state) => state.setModalContent);
+    const setIsActualizar = UseActualizar((state) => state.setIsActualizar);
 
     const [programarActiva, setProgramarActiva] = useState(false);
     const [programarFecha, setProgramarFecha] = useState({ fecha: '', hora: '' });
     const [formatoData, setFormatoData] = useState('');
     const [archivoExcel, setArchivoExcel] = useState(null);
-    const [TelefonosNombres, setTelefonosNombres] = useState([]); // Estado para almacenar el JSON del Excel
-    const [selectedType, setSelectedType] = useState('texto'); // Estado para el tipo de campaña
-    const [selectedFileImagenVideo, setSelectedFileImagenVideo] = useState(null); // Estado para el archivo de imagen/video/PDF
+    const [telefonosNombres, setTelefonosNombres] = useState([]);
+    const [selectedType, setSelectedType] = useState('texto');
+    const [selectedFileImagenVideo, setSelectedFileImagenVideo] = useState(null);
 
-    // Configuración de React Hook Form
     const { register, handleSubmit, watch, formState: { errors } } = useForm();
-    const contenido = watch("contenido", ""); // Observar el campo "contenido"
+    const contenido = watch("contenido", "");
 
-    // Manejar cambios en el input de fecha
-    const handleDateChange = (e) => {
-        const fecha = e.target.value;
+    // Manejar cambios en el input de fecha y hora
+    const handleDateChange = useCallback((e) => {
+        const { name, value } = e.target;
         setProgramarFecha((prev) => ({
             ...prev,
-            fecha,
+            [name]: value,
         }));
-    };
-
-    // Manejar cambios en el input de hora
-    const handleTimeChange = (e) => {
-        const hora = e.target.value;
-        setProgramarFecha((prev) => ({
-            ...prev,
-            hora,
-        }));
-    };
+    }, []);
 
     // Manejar cambios en el tipo de campaña
-    const handleTypeChange = (e) => {
+    const handleTypeChange = useCallback((e) => {
         setSelectedType(e.target.value);
         setSelectedFileImagenVideo(null); // Limpiar el archivo seleccionado al cambiar el tipo
-    };
+    }, []);
 
     // Manejar la carga del archivo Excel y convertirlo a JSON
-    const handleFileUpload = (e) => {
+    const handleFileUpload = useCallback((e) => {
         const file = e.target.files[0];
         if (!file) return;
 
@@ -57,73 +47,71 @@ function ModalCampWSP() {
             const firstSheet = workbook.Sheets[workbook.SheetNames[0]];
             const rows = XLSX.utils.sheet_to_json(firstSheet);
 
-            // Asegurarse de que cada `Telefono` sea una cadena y si no tiene un nombre asignado, usar una cadena vacía
-            const validRows = rows.filter((row) => row.Telefono); // Filtra solo por teléfono
+            const validRows = rows.filter((row) => row.Telefono);
             const telefonosNombresArray = validRows.map((row) => ({
                 Tenvio: String(row.Telefono),
-                Nevio: row.Nombre ? String(row.Nombre) : "", // Si 'Nombre' no existe, asignar una cadena vacía
+                Nevio: row.Nombre ? String(row.Nombre) : "",
             }));
 
-            setArchivoExcel(file); // Guardar el archivo en el estado
-            setTelefonosNombres(telefonosNombresArray); // Guardar el JSON en el estado
+            setArchivoExcel(file);
+            setTelefonosNombres(telefonosNombresArray);
         };
         reader.readAsArrayBuffer(file);
-    };
+    }, []);
 
     // Manejar la carga de archivos de imagen/video/PDF
-    const handleFileChange = (e) => {
+    const handleFileChange = useCallback((e) => {
         const file = e.target.files[0];
         if (file) {
-            setSelectedFileImagenVideo(file); // Guardar el archivo completo, no solo el nombre
+            setSelectedFileImagenVideo(file);
         }
-    };
+    }, []);
 
     // Actualizar formatoData cuando fecha y hora estén completos
     useEffect(() => {
         if (programarFecha.fecha && programarFecha.hora) {
             const { fecha, hora } = programarFecha;
-            const isoDate = `${fecha}T${hora}:00`; // Crear fecha en formato ISO
+            const isoDate = `${fecha}T${hora}:00`;
             setFormatoData(isoDate);
         } else {
-            setFormatoData(''); // Limpiar si falta fecha o hora
+            setFormatoData('');
         }
     }, [programarFecha.fecha, programarFecha.hora]);
 
-    // Función para manejar el clic del botón
-    const handleButtonClick = () => {
+    // Función para manejar el clic del botón de programación
+    const handleButtonClick = useCallback(() => {
         if (programarActiva && programarFecha.fecha && programarFecha.hora) {
-            // Limpiar campos y desactivar programarActiva
             setProgramarFecha({ fecha: '', hora: '' });
             setProgramarActiva(false);
         } else {
-            // Activar programarActiva
             setProgramarActiva(!programarActiva);
         }
-    };
+    }, [programarActiva, programarFecha.fecha, programarFecha.hora]);
 
-    const onSubmit = async (data) => {
+    // Función para enviar el formulario
+    const onSubmit = useCallback(async (data) => {
         try {
-            setIsActualizar(true)
+            setIsActualizar(true);
             const formData = {
                 campania: data.Campania,
                 titulo: data.campaignTitle || '',
                 mensaje: data.contenido,
                 tipo: data.Tipo,
-                cantidad: TelefonosNombres.length,
+                cantidad: telefonosNombres.length,
                 media: selectedFileImagenVideo || "",
-                telefonosNombres: TelefonosNombres,
+                telefonosNombres,
                 fecha_pendiente: formatoData || '',
             };
-            await registerCampaign(formData)
+            await registerCampaign(formData);
         } catch (error) {
             alert("Hubo un error al registrar la campaña. Por favor, inténtalo de nuevo.");
         } finally {
             setModalContent('');
-            setIsOpen(false)
+            setIsOpen(false);
         }
-    };
+    }, [telefonosNombres, selectedFileImagenVideo, formatoData, setIsActualizar, setModalContent, setIsOpen]);
 
-    // Texto del botón
+    // Texto del botón de programación
     const formattedProgramarFecha = !programarActiva
         ? "Programar"
         : programarFecha.fecha && programarFecha.hora
@@ -131,11 +119,11 @@ function ModalCampWSP() {
             : "Programar";
 
     return (
-        <form onSubmit={handleSubmit(onSubmit)} className='flex flex-col gap-6 text-black'>
+        <form onSubmit={handleSubmit(onSubmit)} className='flex flex-col gap-4 text-black'>
             <div className="flex items-center min-w-96 text-base justify-between">
                 <h2 className="text-2xl font-black text-white">Crear Campaña</h2>
                 <button
-                    type="button" // Evita que el botón envíe el formulario
+                    type="button"
                     onClick={handleButtonClick}
                     className='bg-primario text-white py-2 px-4 rounded-lg hover:bg-primario transition-colors'
                 >
@@ -146,14 +134,16 @@ function ModalCampWSP() {
                 <div className="input-date flex justify-between">
                     <input
                         type="date"
+                        name="fecha"
                         className="date-input p-2 border rounded-lg"
                         onChange={handleDateChange}
                         value={programarFecha.fecha}
                     />
                     <input
                         type="time"
+                        name="hora"
                         className="date-input p-2 border rounded-lg"
-                        onChange={handleTimeChange}
+                        onChange={handleDateChange}
                         value={programarFecha.hora}
                     />
                 </div>
@@ -277,14 +267,14 @@ function ModalCampWSP() {
                         <span className=' text-sm text-gray-500'>{archivoExcel ? archivoExcel.name : "archivo excel"}</span>
                         {archivoExcel && (
                             <span className="text-sm text-gray-500">
-                                {TelefonosNombres.length} personas
+                                {telefonosNombres.length} personas
                             </span>
                         )}
                     </div>
                 </div>
             </div>
 
-            <div className='flex justify-between items-center mt-5'>
+            <div className='flex justify-between items-center mt-2'>
                 <button type="submit" className='p-2 rounded-lg w-24 text-white font-bold bg-green-500'>Enviar</button>
                 <button onClick={() => {
                     setModalContent('');
@@ -295,4 +285,4 @@ function ModalCampWSP() {
     );
 }
 
-export default ModalCampWSP;
+export default React.memo(ModalCampWSP);

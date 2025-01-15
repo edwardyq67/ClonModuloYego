@@ -1,5 +1,4 @@
 import axios from "axios";
-import { UseSlider } from "../store/Modal";
 
 // Base URL para la API
 const API_URL = "http://10.10.2.59:5000/api";
@@ -100,7 +99,6 @@ export const registerCampaign = async (formData) => {
                   },
               }
           );
-
           // Obtener la URL del archivo subido
           imgUrl = imgResponse.data.url;
       }
@@ -213,7 +211,62 @@ export const deleteCampaignApi = async (itemId) => {
     console.log("Error en eliminar campaña: ", error);
     return {
       success: 3,
-      message: "Error al conectar con la API. Intenta de nuevo.",
+      message: "Error alFirstfechaPendienteCached conectar con la API. Intenta de nuevo.",
     };
+  }
+};
+
+export const FirstfechaPendienteCached = async () => {
+  try {
+    const response = await axios.get(
+      `http://188.245.38.255:5000/api/sendwhatsapp/FirstfechaPendienteCached`
+    );
+    return response.data[0];
+  } catch (error) {
+    console.error("Error al recuperar instancias:", error);
+    throw error;
+  }
+};
+
+export const MessageActive = async () => {
+  try {
+    const response = await axios.get(
+      `http://188.245.38.255:5000/api/sendwhatsapp/MessageActive`
+    );
+    return response.data;
+  } catch (error) {
+    console.error("Error al recuperar instancias:", error);
+    throw error;
+  }
+};
+
+export const VerificaionSendwhatsapp=async(value)=>{
+  try {
+    const response = await axios.get(
+      `http://188.245.38.255:5000/api/sendwhatsapp/MessagePause/${value}`
+    );
+    return response.data;
+  } catch (error) {
+    console.error("Error al recuperar instancias:", error);
+    throw error;
+  }
+}
+
+export const SalirSeccion = async (id, token) => {
+  try {
+    const response = await axios.delete(
+      `http://localhost:3000/logout`, // Endpoint de cierre de sesión
+      {
+        data: { idloginClient: id }, // Datos a enviar en el cuerpo de la solicitud
+        headers: {
+          Authorization: `Bearer ${token}`, // Incluir el token en el header
+          "Content-Type": "application/json", // Especificar el tipo de contenido
+        },
+      }
+    );
+    return response.data; // Retornar la respuesta del servidor
+  } catch (error) {
+    console.error("Error al cerrar sesión:", error);
+    throw error; // Relanzar el error para manejarlo en el lugar donde se llama a SalirSeccion
   }
 };

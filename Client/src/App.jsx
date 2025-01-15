@@ -3,7 +3,7 @@ import { lazy, Suspense } from 'react'; // Importa lazy y Suspense
 import { HashRouter, Route, Routes } from 'react-router-dom';
 import { UsePixelarSiber } from './store/Sibar';
 import { UseModal, UseSlider } from './store/Modal';
-import ModalInstanciaQR from './comunicaciones/modal/ModalInstanciaQR';
+import Modal from './comunicaciones/modal/Modal';
 import Slider from './components/Slider';
 import ProtectedRoutes from './ProtectedRoutes'; // Importa el componente ProtectedRoutes
 
@@ -18,24 +18,24 @@ function App() {
   const isOpenSlider = UseSlider((state) => state.isOpenSlider); // Modal Slider
   const anchoSibar = pixelesSiber ? '200px' : '10px';
 
-  // Estilos en línea para el contenedor principal
-  const styles = {
-    container: {
+// Estilos en línea para el contenedor principal
+const styles = {
+  container: {
       position: 'absolute',
       top: '0px',
       right: '0px',
-      margin: 'auto',
+      margin: 'auto ',
       padding: '0px 40px',
       width: `calc(100% - ${anchoSibar})`, // Ancho dinámico basado en el estado
       transition: 'margin-left 0.3s ease, width 0.3s ease',
-      height: '100vh', // Altura completa de la ventana
-    },
-  };
-
+      height: '100vh', 
+  },
+};
   return (
     <HashRouter>
       <Suspense fallback={<div>Cargando...</div>}>
-        <Routes>
+    <div>
+      <Routes>
           {/* Ruta pública (Login) */}
           <Route path="/" element={<Login />} />
 
@@ -44,11 +44,11 @@ function App() {
             <Route
               path="/modulo"
               element={
-                <div style={{ display: 'flex' }}>
+                <div className='flex dark:bg-[#0F172A]'>
                   <Sibar />
-                  {isOpen && <ModalInstanciaQR />}
+                  {isOpen && <Modal />}
                   {isOpenSlider && <Slider />}
-                  <div style={styles.container}>
+                  <div className='dark:bg-[#0F172A]' style={styles.container}>
                     <Modulo />
                   </div>
                 </div>
@@ -56,6 +56,8 @@ function App() {
             />
           </Route>
         </Routes>
+    </div>
+        
       </Suspense>
     </HashRouter>
   );
