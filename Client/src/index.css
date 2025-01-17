@@ -26,4 +26,6 @@
   #file-upload {
     display: none; /* Oculta el input real */
   }
-  
+  body{
+    background: #0F172A;
+  }

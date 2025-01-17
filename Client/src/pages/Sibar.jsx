@@ -13,29 +13,14 @@ function Sidebar() {
   const pixelesSiber = UsePixelarSiber((state) => state.pixelesSiber);
   const setPixelSiber = UsePixelarSiber((state) => state.setPixelSiber);
   const siberNav = UseSibar((state) => state.siberNav);
-  const { isDarkMode, setIsDarkMode } = UseTema(); // Obtener el estado y la función para actualizarlo
-  const [ignoreHover, setIgnoreHover] = useState(false);
 
+const [ignoreHover,setIgnoreHover]=useState(false)
   const navigate = useNavigate();
 
-  // Efecto para aplicar la clase `dark` en el elemento <html>
-  useEffect(() => {
-    if (isDarkMode) {
-      document.documentElement.classList.add("dark");
-      document.body.style.backgroundColor = "#0F172A"; // Fondo oscuro
-    } else {
-      document.documentElement.classList.remove("dark");
-      document.body.style.backgroundColor = "white"; // Fondo claro
-    }
-  }, [isDarkMode]);
 
-  // Función para alternar entre modo oscuro y claro
-  const handleToggle = () => {
-    setIsDarkMode(!isDarkMode); // Cambiar el estado
-  };
 
   // Función para cerrar sesión
-  const salir = async () => { // Hacer la función "salir" asíncrona
+  const salir = async () => {
     // Obtener el token del localStorage
     const token = localStorage.getItem("token");
   
@@ -58,14 +43,21 @@ function Sidebar() {
   
         // Llamar a la función SalirSeccion con idUsuario y token
         await SalirSeccion(idUsuario, token); // Usar await si SalirSeccion es asíncrona
+  
+        // Limpiar el localStorage
+        localStorage.removeItem("token"); // Eliminar el token
+        localStorage.removeItem("Permisos"); // Eliminar los permisos
+        localStorage.removeItem("PermisosEspeciales"); // Eliminar los permisos especiales
+        localStorage.removeItem("darkMode"); // Eliminar la preferencia del modo oscuro
+
+        navigate("/"); // Redirigir a la página de inicio
       } catch (error) {
-        console.error("Error al decodificar el token:", error);
+        console.error("Error al cerrar sesión:", error);
       }
     } else {
       console.log("No se encontró ningún token en localStorage.");
     }
   };
-  
   // Función para decodificar Base64Url
   const decodeBase64Url = (str) => {
     // Reemplazar caracteres de Base64Url
@@ -96,7 +88,7 @@ function Sidebar() {
         id="drawer-navigation"
         onMouseEnter={() => !ignoreHover && setPixelSiber(true)}
         onMouseLeave={() => !ignoreHover && setPixelSiber(false)}
-        className={`fixed top-0 left-0 z-20 w-64 h-screen p-3 flex flex-col justify-between overflow-y-auto transition-transform shadow-xl bg-white dark:bg-gray-800 ${
+        className={`fixed top-0 left-0 z-20 w-64 h-screen p-3 flex flex-col justify-between overflow-y-auto transition-transform shadow-xl bg-gray-800 ${
           pixelesSiber ? "translate-x-0" : "-translate-x-48"
         }`}
         tabIndex="-1"
@@ -107,15 +99,16 @@ function Sidebar() {
             id="drawer-navigation-label"
             className={`${
               pixelesSiber ? "justify-start" : "justify-end"
-            } flex gap-2 pt-3 text-base font-semibold text-gray-500 dark:text-gray-400`}
+            } flex gap-2 pt-3 text-base font-semibold text-gray-400`}
           >
-            <div className={`${pixelesSiber ? "absolute" : "hidden"} top-3 right-3 cursor-pointer`}>
-              <IoIosArrowForward
-                size={20}
-                onClick={() => {
+            <div onClick={() => {
                   setIgnoreHover(!ignoreHover);
                   setPixelSiber(true);
-                }}
+              
+                }} className={`${pixelesSiber ? "absolute" : "hidden"} top-3 right-3  cursor-pointer z-50`}>
+              <IoIosArrowForward
+                size={20}
+                
               />
             </div>
 
@@ -144,7 +137,7 @@ function Sidebar() {
                           {item.options.map((sub, idx) => (
                             <li
                               key={idx}
-                              className="cursor-pointer text-ModoOscuro dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-ModoOscuro rounded-lg py-2 px-3"
+                              className="cursor-pointer text-gray-300 hover:text-white rounded-lg py-2 px-3"
                             >
                               {sub.value}
                             </li>
@@ -152,7 +145,7 @@ function Sidebar() {
                         </ul>
                       </AccordionItem>
                     ) : (
-                      <div className="justify-end flex w-full items-center p-2 text-gray-500 hover:text-gray-900 dark:group-hover:text-white rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-ModoOscuro group">
+                      <div className="justify-end flex w-full items-center p-2 hover:text-white rounded-lg text-ModoOscuro group">
                         {item.icon}
                       </div>
                     )
@@ -161,10 +154,10 @@ function Sidebar() {
                       onClick={() => setValorModulo(item.value)}
                       className={`flex ${
                         pixelesSiber ? "justify-start w-full" : "justify-end"
-                      } ${valorModulo==item.value&&"dark:bg-gray-700"} 
-                      items-center p-2 text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-ModoOscuro group`}
+                      } ${valorModulo==item.value&&"bg-gray-700 text-white"} 
+                      items-center p-2 rounded-lg text-gray-300 hover:text-white hover:bg-ModoOscuro group`}
                     >
-                      <div className={`${valorModulo==item.value&&"dark:text-white"} w-5 h-5 text-gray-500 transition duration-75 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white`}>
+                      <div className={`${valorModulo==item.value&&""} w-5 h-5 transition duration-75`}>
                         {item.icon}
                       </div>
                       {pixelesSiber && <span className="ml-3">{item.title}</span>}
@@ -202,9 +195,9 @@ function Sidebar() {
             <button
               className={`flex ${
                 pixelesSiber ? "justify-start" : "justify-end"
-              } w-full items-center p-2 text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-ModoOscuro group`}
+              } w-full items-center p-2 rounded-lg text-gray-300 hover:text-white hover:bg-ModoOscuro group`}
             >
-              <div className="w-5 h-5 text-gray-500 transition duration-75 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white">
+              <div className="w-5 h-5  transition duration-75 text-gray-400 group-hover:text-white">
                 <FaArrowRightFromBracket  size={22} />
               </div>
               {pixelesSiber && <span className="ml-3">Cerrar sesión</span>}

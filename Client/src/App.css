@@ -7,16 +7,38 @@
     @apply bg-[#f5f4f4] w-full p-2 pl-3 border rounded-2xl focus:outline-none;
   }
 
-  /* Estilos personalizados para el placeholder */
   .input-personalizado::placeholder {
     @apply font-medium text-[#646464];
   }
 
-  /* Nueva clase personalizada para la cuadrícula */
   .tablaGrid {
     @apply relative grid grid-cols-1 lg:grid-cols-2 2xl:grid-cols-3 3xl:grid-cols-4 gap-5;
   }
-  .buttonClick{
-    @apply transition-all duration-200 shadow-lg min-w-72 p-2 rounded-lg col-span-1 dark:bg-ModoOscuro dark:text-white text-black font-semibold flex items-center justify-center gap-2 hover:bg-gray-500 hover:text-white
+
+  .buttonClick {
+    @apply transition-all duration-200 shadow-lg min-w-72 p-2 rounded-lg col-span-1 dark:bg-ModoOscuro dark:text-white text-black font-semibold flex items-center justify-center gap-2 hover:bg-gray-500 hover:text-white;
+  }
+
+  .buttonClickleft {
+    @apply transition-all duration-200 shadow-lg min-w-72 p-3 rounded-lg col-span-1 dark:bg-ModoOscuro dark:text-white text-start text-black font-semibold flex items-center hover:bg-gray-500 hover:text-white;
+  }
+
+  /* Estilos personalizados para el scroll */
+  .custom-scrollbar {
+    @apply overflow-y-auto; /* Habilita el scroll vertical */
+  }
+
+  .custom-scrollbar::-webkit-scrollbar {
+    width: 8px; /* Ancho del scrollbar */
+  }
+
+  .custom-scrollbar::-webkit-scrollbar-track {
+    background: transparent; /* Color del track */
+    border-radius: 8px; /* Bordes redondeados */
+  }
+
+  .custom-scrollbar::-webkit-scrollbar-thumb {
+    background: transparent; /* Color del thumb */
+    border-radius: 8px; /* Bordes redondeados */ /* Cambio de color al pasar el mouse */
   }
 }

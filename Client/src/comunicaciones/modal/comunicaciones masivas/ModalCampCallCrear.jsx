@@ -73,12 +73,12 @@ function ModalCampCallCrear() {
         <form onSubmit={handleSubmit(onSubmit)} className='flex flex-col gap-6 text-black'>
             <h2 className="text-2xl font-black text-white">Crear Campaña</h2>
             <div className='flex flex-col'>
-                <label htmlFor="Campania" className='mb-2 font-black text-white'>Nombre de la Campaña</label>
+                <label htmlFor="Campania" className='mb-2 font-black text-gray-300'>Nombre de la Campaña</label>
                 <input
                     type="text"
                     id="Campania"
                     placeholder='Nombre de la Campaña'
-                    className='p-2.5 rounded-lg outline-none text-sm'
+                    className='p-2.5 rounded-lg outline-none text-sm text-white bg-ModoOscuro'
                     {...register('Campania', { required: 'Este campo es obligatorio' })}
                 />
                 {errors.Campania && (
@@ -88,7 +88,7 @@ function ModalCampCallCrear() {
 
             {/* Sección para adjuntar archivo Excel */}
             <div className='flex flex-col gap-3'>
-                <span className='font-black text-base text-white'>Adjuntar Archivo Excel</span>
+                <span className='font-black text-base text-gray-300'>Adjuntar Archivo Excel</span>
                 <div className='flex justify-between'>
                     <div className="custom-file-upload">
                         <label htmlFor="file-upload-excel" className="file-label bg-gray-600 font-semibold text-white py-2 px-4 rounded-lg cursor-pointer">
@@ -115,7 +115,7 @@ function ModalCampCallCrear() {
 
             {/* Sección para adjuntar archivo de audio */}
             <div className='flex flex-col gap-3 max-w-96 min-w-96'>
-                <span className='font-black text-base text-white'>Adjuntar Audio (WAV)</span>
+                <span className='font-black text-base text-gray-300'>Adjuntar Audio (WAV)</span>
                 <div className='flex justify-between '>
                     <div className="custom-file-upload">
                         <label htmlFor="file-upload-audio" className="file-label bg-gray-600 font-semibold text-white py-2 px-4 rounded-lg cursor-pointer">

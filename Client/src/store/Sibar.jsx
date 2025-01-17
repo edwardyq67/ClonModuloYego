@@ -7,6 +7,7 @@ export const UseSibar = create((set) => ({
     siberNav: [], // Inicializado como un arreglo vacío
     setSiberNav: (nav) => set({ siberNav: nav || [] }), // Asegurar que siempre sea un arreglo
 }));
+//esto es para la separacion de siber y el main
 export const UsePixelarSiber = create((set) => ({
     pixelesSiber: false,
     setPixelSiber: (value) => set({ pixelesSiber: value })// Cambiar `valor` por `pixelesSiber`

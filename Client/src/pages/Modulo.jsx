@@ -15,69 +15,47 @@ import { BsTelephone } from "react-icons/bs";
 import Comunicaciones from '../comunicaciones/Comunicaciones';
 import { UseSibar } from '../store/Sibar';
 import { UseSlider } from '../store/Modal';
-import { UseTema } from '../store/EstadoTotal';
+
 import { HiMiniHome } from "react-icons/hi2";
+import ComunicacionesFecha from '../comunicacionesFecha/ComunicacionesFecha';
 function Modulo() {
     const [NModulo, setNModulo] = useState("");
     const [id, setId] = useState(0);
     const SetSiberNav = UseSibar((state) => state.setSiberNav);
-    const { isDarkMode } = UseTema(); // Obtener el estado del modo oscuro
+
     const setIsOpenSlider = UseSlider((state) => state.setIsOpenSlider);
 
-    // Efecto para aplicar el modo oscuro o claro
-    useEffect(() => {
-        if (isDarkMode) {
-            document.documentElement.classList.add("dark");
-            document.body.style.backgroundColor = "#0F172A"; // Fondo oscuro
-        } else {
-            document.documentElement.classList.remove("dark");
-            document.body.style.backgroundColor = "white"; // Fondo claro
-        }
-        localStorage.setItem("darkMode", isDarkMode); // Guardar preferencia
-    }, [isDarkMode]);
-
-    // Efecto para aplicar el modo oscuro o claro
-    useEffect(() => {
-        if (isDarkMode) {
-            document.documentElement.classList.add("dark");
-            document.body.style.backgroundColor = "#0F172A"; // Fondo oscuro
-        } else {
-            document.documentElement.classList.remove("dark");
-            document.body.style.backgroundColor = "white"; // Fondo claro
-        }
-        localStorage.setItem("darkMode", isDarkMode); // Guardar preferencia
-    }, [isDarkMode]);
 
     const ModulosImagenes = [
         {
             id: 1,
             titulo: "RECARGAS",
             imagen: ModuloRegarga,
-            imagenDark: ModuloRegarga, // Cambia esto por la imagen para modo oscuro si es necesario
+            nav: []
         },
         {
             id: 2,
             titulo: "COMUNICACIONES",
             imagen: ModuloComunicaciones,
-            imagenDark: ModuloComunicaciones, // Cambia esto por la imagen para modo oscuro si es necesario
+            nav: []
         },
         {
             id: 3,
             titulo: "PRESTAMOS",
             imagen: ModuloPrestamos,
-            imagenDark: ModuloPrestamos, // Cambia esto por la imagen para modo oscuro si es necesario
+            nav: []
         },
         {
             id: 4,
             titulo: "REGISTROS CONDUCTORES",
             imagen: ModuloRegistroConductores,
-            imagenDark: ModuloRegistroConductores, // Cambia esto por la imagen para modo oscuro si es necesario
+            nav: []
         },
         {
             id: 5,
             titulo: "COMUNICACIONES MASIVAS",
             imagen: ModuloComunicacionesMasivas,
-            imagenDark: ModuloComunicacionesMasivas, // Cambia esto por la imagen para modo oscuro si es necesario
+           
             nav: [
                 {
                     title: "Instancias",
@@ -100,29 +78,29 @@ function Modulo() {
             id: 6,
             titulo: "EVALUACIÓN PRESENCIAL",
             imagen: ModuloEvaluacionPresencial,
-            imagenDark: ModuloEvaluacionPresencial, // Cambia esto por la imagen para modo oscuro si es necesario
+            nav: []
         },
         {
             id: 7,
             titulo: "EVALUACIÓN DIGITAL",
             imagen: EvaluacionDigital,
-            imagenDark: EvaluacionDigital, // Cambia esto por la imagen para modo oscuro si es necesario
+            nav: []
         },
         {
             id: 8,
             titulo: "ANPT",
             imagen: ModuloANPT,
-            imagenDark: ModuloANPT, // Cambia esto por la imagen para modo oscuro si es necesario
+            nav: []
         },
     ];
 
     return (
-        <main className='pl-10 pt-10 pb-10 grid gap-6 dark:bg-[#0F172A]'>
+        <main className='pl-10 pt-10 pb-10 grid gap-6'>
             <div className='flex justify-between'>
                 {/* Cambiar el logo según el modo */}
                 <img
                     className='max-w-[80%] w-[200px]'
-                    src={isDarkMode ? yegoLogoBlanco : yegoLogo} // Cambia la imagen según el modo
+                    src={yegoLogoBlanco} // Cambia la imagen según el modo
                     alt="Logo de Yego"
                 />
                 {id !== 0 && (
@@ -150,7 +128,7 @@ function Modulo() {
                                 setId(modulo.id);
                                 setNModulo(modulo.titulo);
                                 SetSiberNav(modulo.nav || []);
-                                setIsOpenSlider(true);
+                                /* setIsOpenSlider(true); */
                             }}
                             className='bg-white dark:bg-ModoOscuro shadow-lg gap-5 transition-all duration-200 hover:scale-[1.02] cursor-pointer rounded-xl flex p-5 justify-around items-center'
                         >
@@ -159,14 +137,16 @@ function Modulo() {
                                 loading="lazy"
                                 height={160}
                                 className='max-w-40 h-auto'
-                                src={isDarkMode ? modulo.imagenDark : modulo.imagen} // Cambia la imagen según el modo
+                                src={modulo.imagen} // Cambia la imagen según el modo
                                 alt={modulo.titulo}
                             />
                             <h2 className='font-semibold text-base lg:text-lg dark:text-white'>{modulo.titulo}</h2>
                         </div>
                     ))}
                 </div>
-            ) : id === 5 ? (
+            ):  id === 2 ? (
+                <ComunicacionesFecha />
+            ): id === 5 ? (
                 <Comunicaciones />
             ) : ""}
         </main>

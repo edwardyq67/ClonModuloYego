@@ -1,6 +1,5 @@
-// tailwind.config.js
 module.exports = {
-  darkMode: "class", // Corregido aquí
+  darkMode: "class", // Modo oscuro basado en clases
   content: [
     "./src/**/*.{js,jsx,ts,tsx}", // Asegúrate de que Tailwind escanee todos tus archivos
   ],
@@ -11,7 +10,7 @@ module.exports = {
       },
       colors: {
         primario: '#ff0d0d', // Define el color personalizado "primario"
-        ModoOscuro:'#374151'
+        ModoOscuro: '#374151' // Define el color personalizado "ModoOscuro"
       },
     },
   },

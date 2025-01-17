@@ -10,43 +10,31 @@ export const fetchInstances = async () => {
   } catch (error) {
     console.error("Error al recuperar instancias:", error);
     throw error;
-  } 
+  }
 }
 
-  // Función para generar el QR de una instancia
+// Función para generar el QR de una instancia
 export const generateQrCode = async (instanceName) => {
-    try {
-      const response = await axios.get(`${API_URL}/generate-qr/${instanceName}`);
-      return response.data; // Se espera que esto devuelva el base64
-    } catch (error) {
-      console.error("Error generating QR code:", error);
-      throw error.response?.data || error;
-    }
-  };
+  try {
+    const response = await axios.get(`${API_URL}/generate-qr/${instanceName}`);
+    return response.data; // Se espera que esto devuelva el base64
+  } catch (error) {
+    console.error("Error generating QR code:", error);
+    throw error.response?.data || error;
+  }
+};
 
-  export const createInstance = async (instanceName) => {
-    try {
-      const response = await axios.post(`${API_URL}/create-instance`, {
-        instanceName,
-      });
-      return response.data;
-    } catch (error) {
-      console.error("Error al crear la instancia:", error);
-      throw error;
-    }
-  };
-
-  export const logoutInstance = async (instanceName) => {
-    try {
-      const response = await axios.delete(
-        `${API_URL}/delete-instance/${instanceName}`
-      );
-      return response.data;
-    } catch (error) {
-      console.error("Error logging out instance:", error);
-      throw error.response?.data || error;
-    }
-  }; 
+export const logoutInstance = async (instanceName) => {
+  try {
+    const response = await axios.delete(
+      `${API_URL}/delete-instance/${instanceName}`
+    );
+    return response.data;
+  } catch (error) {
+    console.error("Error logging out instance:", error);
+    throw error.response?.data || error;
+  }
+};
 
 // Función para obtener el resumen de WhatsApp usando la API local
 export const getWhatsAppSummary = async () => {
@@ -80,60 +68,58 @@ export const getCallSummary = async () => {
 // Función para registrar una campaña de WhatsApp usando la API local
 export const registerCampaign = async (formData) => {
   try {
-      const { campania, titulo, mensaje, tipo, cantidad, telefonosNombres, media, fecha_pendiente } = formData;
-      let imgUrl = ""; // URL de la imagen (inicialmente vacía)
+    const { campania, titulo, mensaje, tipo, cantidad, telefonosNombres, media, fecha_pendiente } = formData;
+    let imgUrl = ""; // URL de la imagen (inicialmente vacía)
 
-      // Si el tipo es "imagen", "video" o "pdf" y media no está vacío, subir el archivo
-      if ((tipo === "imagen" || tipo === "video" || tipo === "pdf") && media) {
-          const formImg = new FormData();
-          formImg.append("bucket", "masivo");
-          formImg.append("file", media);
+    // Si el tipo es "imagen", "video" o "pdf" y media no está vacío, subir el archivo
+    if ((tipo === "imagen" || tipo === "video" || tipo === "pdf")) {
+      const formImg = new FormData();
+      formImg.append("bucket", "masivo");
+      formImg.append("file", media);
 
-          // Subir el archivo al servidor
-          const imgResponse = await axios.post(
-              "https://cloud.3w.pe/media2",
-              formImg,
-              {
-                  headers: {
-                      "Content-Type": "multipart/form-data", // Asegúrate de configurar el encabezado
-                  },
-              }
-          );
-          // Obtener la URL del archivo subido
-          imgUrl = imgResponse.data.url;
+      // Subir el archivo al servidor
+      const imgResponse = await axios.post(
+        "https://cloud.3w.pe/media2",
+        formImg,
+        {
+          headers: {
+            "Content-Type": "multipart/form-data", // Asegúrate de configurar el encabezado
+          },
+        }
+      );
+      // Obtener la URL del archivo subido
+      imgUrl = imgResponse.data.url;
+    }
+
+    // Crear el cuerpo de la solicitud
+    const requestBody = {
+      Campania: campania,
+      Titulo: titulo,
+      Mensaje: mensaje,
+      Tipo: tipo,
+      Cantidad: cantidad,
+      Empresa: "Yego",
+      TelefonosNombres: telefonosNombres,
+      Media: imgUrl, // Usar la URL del archivo subido
+      fecha_pendiente: fecha_pendiente,
+    };
+    const response = await axios.post(
+      `${API_URL}/send-whatsapp/registro`,
+      requestBody,
+      {
+        headers: {
+          "Content-Type": "application/json",
+        },
       }
-
-      // Crear el cuerpo de la solicitud
-      const requestBody = {
-          Campania: campania,
-          Titulo: titulo,
-          Mensaje: mensaje,
-          Tipo: tipo,
-          Cantidad: cantidad,
-          Empresa: "Yego",
-          TelefonosNombres: telefonosNombres,
-          Media: imgUrl, // Usar la URL del archivo subido
-          fecha_pendiente: fecha_pendiente,
-      };
-
-      // Enviar la solicitud para registrar la campaña
-      const response = await axios.post(
-          `${API_URL}/send-whatsapp/registro`,
-          requestBody,
-          {
-              headers: {
-                  "Content-Type": "application/json",
-              },
-          }
-      );
-
-      return response.data;
+    );
+console.log(requestBody)
+    return response.data;
   } catch (error) {
-      console.error(
-          "Error registering campaign:",
-          error.response?.data || error.message
-      );
-      throw error.response?.data || error;
+    console.error(
+      "Error registering campaign:",
+      error.response?.data || error.message
+    );
+    throw error.response?.data || error;
   }
 };
 
@@ -240,7 +226,7 @@ export const MessageActive = async () => {
   }
 };
 
-export const VerificaionSendwhatsapp=async(value)=>{
+export const VerificaionSendwhatsapp = async (value) => {
   try {
     const response = await axios.get(
       `http://188.245.38.255:5000/api/sendwhatsapp/MessagePause/${value}`
@@ -257,16 +243,75 @@ export const SalirSeccion = async (id, token) => {
     const response = await axios.delete(
       `http://localhost:3000/logout`, // Endpoint de cierre de sesión
       {
-        data: { idloginClient: id }, // Datos a enviar en el cuerpo de la solicitud
+        data: { idloginClient: id }, // Usar la propiedad "data" para enviar el cuerpo
         headers: {
           Authorization: `Bearer ${token}`, // Incluir el token en el header
           "Content-Type": "application/json", // Especificar el tipo de contenido
         },
       }
     );
+
     return response.data; // Retornar la respuesta del servidor
   } catch (error) {
-    console.error("Error al cerrar sesión:", error);
+    console.error("Error al cerrar sesión:", error.response?.data || error.message);
     throw error; // Relanzar el error para manejarlo en el lugar donde se llama a SalirSeccion
+  }
+};
+
+export const fozarDetencion = async (nameUser, passSesion) => {
+  try {
+    // Realiza la solicitud POST y captura la respuesta
+    const response = await axios.post(
+      'http://localhost:3000/closeSessions',
+      {
+        nameUser, // Usa el parámetro nameUser
+        passSesion, // Usa el parámetro passSesion
+      }
+    );
+
+    console.log("funciono"); // Mensaje de confirmación
+    return response.data; // Devuelve la respuesta del servidor
+  } catch (error) {
+    console.error("Error al forzar la detención de sesiones:", error.response?.data || error.message);
+    throw error; // Relanzar el error para manejarlo en el lugar donde se llama a forzarDetencion
+  }
+};
+
+export const IniciarSecion = async (username, password) => {
+  try {
+    const response = await axios.post(
+      'http://localhost:3000/login/',
+      {
+        username,
+        password,
+      }
+    );
+
+    return response.data; // Retornar la respuesta del servidor
+  } catch (error) {
+    console.error("Error al iniciar sesión:", error.response?.data || error.message);
+    throw error; // Relanzar el error para manejarlo en el lugar donde se llama a IniciarSecion
+  }
+};
+
+export const createInstance = async () => {
+  try {
+    const response = await axios.post(`${API_URL}/create-instance`, null, {
+      responseType: "blob", // Configuración para recibir la respuesta como blob
+    });
+    return response;
+  } catch (error) {
+    console.error("Error al crear la instancia:", error);
+    throw error;
+  }
+};
+//comunicaciones
+export const fetchComunicaciones = async () => {
+  try {
+    const response = await axios.get(`http://188.245.38.255:5000/api/comunicacion/registrados`);
+    return response;
+  } catch (error) {
+    console.error("Error al crear la instancia:", error);
+    throw error;
   }
 };

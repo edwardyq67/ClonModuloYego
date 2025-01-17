@@ -125,7 +125,7 @@ function ModalCampWSP() {
                 <button
                     type="button"
                     onClick={handleButtonClick}
-                    className='bg-primario text-white py-2 px-4 rounded-lg hover:bg-primario transition-colors'
+                    className='bg-red-600 font-semibold text-white py-2 px-4 rounded-lg transition-colors'
                 >
                     {formattedProgramarFecha}
                 </button>
@@ -135,26 +135,26 @@ function ModalCampWSP() {
                     <input
                         type="date"
                         name="fecha"
-                        className="date-input p-2 border rounded-lg"
+                        className="date-input p-2 rounded-lg border border-ModoOscuro bg-ModoOscuro text-white"
                         onChange={handleDateChange}
                         value={programarFecha.fecha}
                     />
                     <input
                         type="time"
                         name="hora"
-                        className="date-input p-2 border rounded-lg"
+                        className="date-input p-2 border rounded-lg border-ModoOscuro bg-ModoOscuro text-white"
                         onChange={handleDateChange}
                         value={programarFecha.hora}
                     />
                 </div>
             )}
             <div className='flex flex-col'>
-                <label htmlFor="Campania" className='mb-2 font-black text-white'>Nombre de la Campaña</label>
+                <label htmlFor="Campania" className='mb-2 font-black text-gray-400'>Nombre de la Campaña</label>
                 <input
                     type="text"
                     id="Campania"
                     placeholder='Nombre de la Campaña'
-                    className='p-2.5 rounded-lg outline-none text-sm'
+                    className='p-2.5 rounded-lg outline-none text-sm bg-ModoOscuro text-white'
                     {...register("Campania", { required: "Este campo es obligatorio" })}
                 />
                 {errors.Campania && (
@@ -162,10 +162,10 @@ function ModalCampWSP() {
                 )}
             </div>
             <div>
-                <label htmlFor="Tipo" className="block font-black mb-2 text-base text-white">Tipo de Campaña</label>
+                <label htmlFor="Tipo" className="block font-black mb-2 text-base text-gray-400">Tipo de Campaña</label>
                 <select
                     id="Tipo"
-                    className="bg-gray-50 outline-none border border-gray-300 text-sm rounded-lg block w-full p-2.5"
+                    className="bg-ModoOscuro outline-none border border-ModoOscuro text-white text-sm rounded-lg block w-full p-2.5"
                     {...register("Tipo", { required: "Este campo es obligatorio" })}
                     onChange={handleTypeChange}
                 >
@@ -180,7 +180,7 @@ function ModalCampWSP() {
                 {(selectedType === "imagen" || selectedType === "video" || selectedType === "pdf") && (
                     <div className="divfileInputImagenVideo mt-4 flex justify-between max-w-96">
                         <label
-                            className="fileInputImagenVideo bg-gray-600 text-white py-2 px-4 rounded-lg cursor-pointer text-sm font-semibold"
+                            className="fileInputImagenVideo bg-ModoOscuro text-gray-400 py-2 px-4 rounded-lg cursor-pointer text-sm font-semibold"
                             htmlFor="file-upload-imagen-video"
                         >
                             SELECCIONAR {selectedType.toUpperCase()}
@@ -198,7 +198,7 @@ function ModalCampWSP() {
                             }
                             className="hidden"
                         />
-                        <span className="file-selected text-sm text-gray-500 mt-2">
+                        <span className="file-selected text-sm text-slate-500 mt-2">
                             {selectedFileImagenVideo ? selectedFileImagenVideo.name : "Sin archivos seleccionados"}
                         </span>
                     </div>
@@ -206,9 +206,9 @@ function ModalCampWSP() {
             </div>
             {(selectedType === "imagen" || selectedType === "video" || selectedType === "pdf") && (
                 <div className="flex flex-col">
-                    <label htmlFor="campaignTitle" className="block font-black mb-2 text-base text-white">
+                    <label htmlFor="campaignTitle" className="block font-black mb-2 text-base text-gray-400">
                         Título de la Campaña
-                        <span className="text-sm text-gray-500">
+                        <span className="text-sm text-slate-500">
                             {` (Para ${selectedType === "imagen"
                                 ? "Imagen"
                                 : selectedType === "video"
@@ -221,7 +221,7 @@ function ModalCampWSP() {
                         type="text"
                         id="campaignTitle"
                         placeholder="Título de la Campaña"
-                        className="p-2.5 rounded-lg outline-none border border-gray-300 text-sm"
+                        className="p-2.5 rounded-lg outline-none border border-ModoOscuro bg-ModoOscuro text-sm text-white"
                         {...register("campaignTitle", {
                             required: selectedType !== "texto" ? "Este campo es obligatorio" : false,
                         })}
@@ -232,13 +232,13 @@ function ModalCampWSP() {
                 </div>
             )}
             <div>
-                <label htmlFor="contenido" className="block mb-2 font-black text-base text-white">Contenido de la Campaña</label>
+                <label htmlFor="contenido" className="block mb-2 font-black text-base text-gray-400">Contenido de la Campaña</label>
                 <textarea
                     id="contenido"
                     rows="4"
                     maxLength={500}
                     placeholder="Escribe el contenido de tu campaña"
-                    className="block p-2.5 outline-none w-full text-sm bg-gray-50 rounded-lg border border-gray-300 focus:ring-blue-500"
+                    className="block p-2.5 outline-none w-full text-sm bg-ModoOscuro rounded-lg border text-white border-ModoOscuro focus:ring-blue-500"
                     {...register("contenido", {
                         required: "Este campo es obligatorio",
                         maxLength: {
@@ -255,18 +255,18 @@ function ModalCampWSP() {
                 )}
             </div>
             <div className='flex flex-col gap-3'>
-                <span className='font-black text-base text-white'>Adjuntar Archivo Excel</span>
+                <span className='font-black text-base text-gray-400'>Adjuntar Archivo Excel</span>
                 <div className='flex justify-between'>
                     <div className="custom-file-upload">
-                        <label htmlFor="file-upload" className="file-label bg-gray-600 font-semibold text-white py-2 px-4 rounded-lg cursor-pointer ">
+                        <label htmlFor="file-upload" className="file-label bg-ModoOscuro font-semibold text-slate-300 py-2 px-4 rounded-lg cursor-pointer ">
                             SELECCIONAR EXCEL
                         </label>
                         <input onChange={handleFileUpload} id="file-upload" type="file" accept=".xlsx,.xls" className="hidden" />
                     </div>
                     <div className="flex flex-col items-end">
-                        <span className=' text-sm text-gray-500'>{archivoExcel ? archivoExcel.name : "archivo excel"}</span>
+                        <span className=' text-sm text-slate-500'>{archivoExcel ? archivoExcel.name : "archivo excel"}</span>
                         {archivoExcel && (
-                            <span className="text-sm text-gray-500">
+                            <span className="text-sm text-slate-500">
                                 {telefonosNombres.length} personas
                             </span>
                         )}
@@ -275,11 +275,11 @@ function ModalCampWSP() {
             </div>
 
             <div className='flex justify-between items-center mt-2'>
-                <button type="submit" className='p-2 rounded-lg w-24 text-white font-bold bg-green-500'>Enviar</button>
+                <button type="submit" className='p-2 rounded-lg w-24 text-white font-bold bg-green-600'>Enviar</button>
                 <button onClick={() => {
                     setModalContent('');
                     setIsOpen(false)
-                }} type="button" className='p-2 rounded-lg w-24 text-white font-bold bg-red-500'>Cancelar</button>
+                }} type="button" className='p-2 rounded-lg w-24 text-white font-bold bg-red-600'>Cancelar</button>
             </div>
         </form>
     );

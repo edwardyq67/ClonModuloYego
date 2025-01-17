@@ -4,35 +4,49 @@ import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import estrella from '../Imagenes/Todos/estrella.webp';
 import yegoLogo from '../Imagenes/Todos/yegoLogo.webp';
+import { useLogin409, UseModalLogin, UseSlider } from '../store/Modal';
 
 function Login() {
   const navigate = useNavigate();
   const { register, handleSubmit, formState: { errors } } = useForm(); // Inicializar useForm
+  const setUsername=useLogin409((state)=>state.setUsername)//capturar info por error 409
+  const setPassword=useLogin409((state)=>state.setPassword)//capturar info por error 409
+  const setIsOpenSlider=UseSlider((state)=>state.setIsOpenSlider)//loader
+  const setIsModalLogin=UseModalLogin((state)=>state.setIsModalLogin)
   const [errorMessage, setErrorMessage] = useState(''); // Estado para mensajes de error
 
   // Función para manejar el envío del formulario
   const onSubmit = async (data) => {
     try {
+      setIsOpenSlider(true);
       const response = await axios.post('http://localhost:3000/login/', {
         username: data.usuario,
         password: data.contraseña,
       });
-
+  
       // Si la respuesta es exitosa
       if (response.data.token) {
         // Guardar datos en el localStorage
         localStorage.setItem('token', response.data.token);
         localStorage.setItem('Permisos', JSON.stringify(response.data.permissionsByRole)); // Convertir a JSON
         localStorage.setItem('PermisosEspeciales', JSON.stringify(response.data.permisosEspeciales)); // Convertir a JSON
-
+  
         // Redirigir al usuario al módulo
         navigate('/modulo');
       } else {
         setErrorMessage('Datos inválidos'); // Mostrar mensaje de error
       }
     } catch (error) {
-      setErrorMessage('Datos inválidos'); // Mostrar mensaje de error
+      if (error.response && error.response.status === 409) {
+        setUsername(data.usuario);
+        setPassword(data.contraseña);
+        setIsModalLogin(true)
+      } else {
+        setErrorMessage('Datos inválidos'); // Mostrar mensaje de error genérico
+      }
       console.error('Error al iniciar sesión:', error);
+    } finally {
+      setIsOpenSlider(false);
     }
   };
 

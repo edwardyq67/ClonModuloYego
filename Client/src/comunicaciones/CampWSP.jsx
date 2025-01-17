@@ -34,25 +34,24 @@ function CampWSP() {
     const setIsOpen = UseModal((state) => state.setIsOpen);
     const [stopInterval, setStopInterval] = useState(false);
     const [valorUltimoMensaje,setValorUltimoMensaje]=useState([])
+    const [idactivoAnterio,setIdactivoAnterio]=useState("")
     // Función para obtener los datos de resumen
 
     useEffect(() => {
         const timeout = setTimeout(async () => {
-            const rest = await VerificaionSendwhatsapp(3)
-            console.log(rest)
-            console.log(valorUltimoMensaje)
-            /*    for (let i = 1; i < valorAnterior.length; i++) {
-                 const item = valorAnterior[i];
-               await VerificaionSendwhatsapp(3)
-           await postWspState(item.idSendmessage, 3);
-     
-               } */
-            setStopInterval(false);
-        }, 1 * 60 * 1000); // 1 minutos
-
+          /* const rest = await VerificaionSendwhatsapp(3) */
+          console.log(valorUltimoMensaje);
+          for (let i = 0; i < valorUltimoMensaje.length; i++) {
+            if (valorUltimoMensaje[i].idestado !== 4) {
+              console.log(`idSendmessage: ${valorUltimoMensaje[i].idSendmessage}`);
+            }
+            /* setStopInterval(false); */
+          }
+        }, (/* 1 * 60 * */ 1000)); // 1 minuto
+    
         // Limpieza del timeout si el componente se desmonta
         return () => clearTimeout(timeout);
-    }, [stopInterval]);
+      }, [stopInterval]);
 
     const fetchSummaryData = useCallback(async () => {
         try {
@@ -155,17 +154,22 @@ function CampWSP() {
 
                 if (ahora > fecha) {
                     console.log("¡Ya es hora!");
+                    const rest = await VerificaionSendwhatsapp(4)
+                    setIdactivoAnterio(rest)
                     const messages = await MessageActive();
 
                     if (Array.isArray(messages)) {
                         for (const { idSendmessage } of messages) {
-                            await postWspState(idSendmessage, 0);
-                            setValorUltimoMensaje(messages[0])
+                            console.log(idSendmessage)
+                            console.log(messages)
+                            setValorUltimoMensaje(messages)
+                            /* await postWspState(idSendmessage, 0);
+                            setValorUltimoMensaje(messages[0]) */
                         }
                     }
-                    if (response?.idestado == 0) {
+                    /* if (response?.idestado == 0) {
                         await postWspState(response?.idSendmessage, 3);
-                    }
+                    } */
 
                     setStopInterval(true); // Detener el intervalo
                 } else {
@@ -220,7 +224,7 @@ function CampWSP() {
     const toggleAccordion = useCallback((id) => {
         setExpandedId((prevId) => (prevId === id ? null : id));
     }, []);
-
+console.log(filteredData)
     return (
         <div className="tablaGrid">
             <div className="col-span-1 lg:col-span-2 2xl:col-span-3 3xl:col-span-4 items-center justify-between grid grid-cols-1 md:grid-cols-2 gap-2">
